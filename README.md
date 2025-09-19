@@ -39,11 +39,6 @@ I was spending way too much time organizing photos for Depop listings and wanted
 
 **My Approach:** Build a simple web interface to streamline the workflow, with Claude doing most of the technical heavy lifting while I provided direction and testing.
 
-**What This Shows:**
-- How someone without deep coding experience can build useful tools with AI assistance
-- The iterative process of building and refining based on actual use
-- A practical solution to a real problem I was facing
-
 ## Quick Start Guide
 
 ### Option 1: Web Photo Organizer (Recommended)
