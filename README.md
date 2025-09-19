@@ -33,18 +33,16 @@ This is a complete **visual photo organizer and inventory management system** sp
 
 ## 💡 Why I Made It
 
-As someone learning to harness AI for practical business solutions, I wanted to demonstrate how **Claude Code can collaborate with humans** to build real-world applications that solve genuine problems.
+I was spending way too much time organizing photos for Depop listings and wanted to see if I could automate the boring parts. Since I don't have a traditional programming background, I used Claude Code to help build something functional.
 
-**The Challenge:** Depop selling involves repetitive photo organization, manual inventory tracking, and time-consuming listing creation.
+**The Problem:** Manually organizing photos, tracking inventory, and creating listings was taking forever.
 
-**My Solution:** A visual web application that automates the tedious parts while maintaining complete control over the creative aspects.
+**My Approach:** Build a simple web interface to streamline the workflow, with Claude doing most of the technical heavy lifting while I provided direction and testing.
 
-**What This Showcases:**
-- 🤝 **AI-Human Collaboration** - Using Claude Code to rapidly prototype and iterate
-- 🎯 **Problem-Solving Approach** - Identifying pain points and building targeted solutions  
-- 🛠️ **Full-Stack Development** - Frontend (HTML/CSS/JS) + Backend (Python) + Data Management (CSV)
-- 📱 **User Experience Focus** - Intuitive interface with authentic form fields
-- 🔄 **Iterative Development** - Started simple, added features based on real needs
+**What This Shows:**
+- How someone without deep coding experience can build useful tools with AI assistance
+- The iterative process of building and refining based on actual use
+- A practical solution to a real problem I was facing
 
 ## Quick Start Guide
 
@@ -132,24 +130,20 @@ This project is designed to be collaborative. Use Claude Code to:
 
 ## 🤖 Built with Claude Code
 
-This project demonstrates the power of **AI-assisted development** using [Claude Code](https://claude.ai/code). From initial concept to deployment, Claude helped me:
+I used [Claude Code](https://claude.ai/code) to help build this because I'm not a programmer. Here's how it actually worked:
 
-**Development Process:**
-- 🎯 **Problem Analysis** - Breaking down the Depop selling workflow into solvable components
-- 🛠️ **Technical Architecture** - Designing the full-stack solution (web interface + Python backend)
-- 💻 **Code Implementation** - Writing HTML, CSS, JavaScript, and Python with real-time collaboration
-- 🐛 **Debugging & Iteration** - Solving issues like modal navigation, form validation, and file organization
-- 📱 **UX Enhancement** - Adding features like photo preview, drag-and-drop, and authentic form fields
-- 🔗 **GitHub Integration** - Setting up version control and repository management
+**The Reality:**
+- I described what I wanted and Claude wrote most of the code
+- I tested things, found problems, and Claude fixed them
+- We went back and forth a lot to get the interface working right
+- Claude handled the technical stuff while I focused on making it actually useful for selling
 
-**Total Development Time:** ~6 hours for a complete business application
-**Files Created:** 17+ comprehensive files including documentation, scripts, and data structures
-**Key Learning:** How AI can accelerate development while maintaining code quality and user experience focus
+**What I learned:**
+- You can build functional tools even without coding background
+- AI is really good at handling the technical implementation
+- The hard part is knowing what you actually want and testing it properly
+- Took about 6 hours total, mostly spent on testing and refinement
 
-This project showcases how **non-technical founders can leverage AI** to rapidly prototype and build functional business tools without traditional programming backgrounds.
+**Technologies:** HTML, CSS, JavaScript, Python (but honestly Claude wrote most of it)
 
-**Technologies Used:** HTML5, CSS3, JavaScript, Python, HTTP Server, CSV Data Management, Git/GitHub
-
----
-
-*Want to see more projects built with Claude Code? Check out my other repositories showcasing AI-assisted development!*
+This shows what's possible when you have a clear problem and use AI to handle the technical execution.
