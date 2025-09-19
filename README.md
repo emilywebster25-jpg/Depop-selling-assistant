@@ -19,17 +19,17 @@ This is a complete **visual photo organizer and inventory management system** sp
 ### Visual Photo Organization
 1. **Drop photos** into the staging folder
 2. **Launch the web interface** (`./launch_organizer.sh`)
-3. **Group photos visually** using the intuitive interface
-4. **Fill out authentic Depop form fields** (categories, brands, descriptions)
-5. **Photos automatically organized** into both category and item-specific folders
+3. **Select which photos go together** for each item
+4. **Fill out the form** (categories, brands, descriptions)
+5. **Submit** - photos get copied to organized folders
 6. **Click "Open Folder"** to drag photos directly into Depop
 
-### Smart Automation
-- **Real-time photo preview** with modal lightbox navigation
-- **Automatic file naming** and folder organization
-- **CSV inventory population** with all item details
-- **Hashtag character counting** within description fields
-- **Form validation** using authentic Depop field options
+### What It Actually Does
+- **Photo preview** - Click photos to see them larger
+- **File organization** - Copies photos to organized folders when you submit the form
+- **CSV tracking** - Saves your item details to a spreadsheet
+- **Character counter** - Shows hashtag length in the description field
+- **Form dropdowns** - Uses real Depop categories and brands
 
 ## 💡 Why I Made It
 
