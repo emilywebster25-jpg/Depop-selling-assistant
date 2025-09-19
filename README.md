@@ -9,9 +9,8 @@ This is a complete **visual photo organizer and inventory management system** sp
 **Key Components:**
 - 🌐 **Web-based photo organizer** with drag-and-drop interface
 - 📊 **Inventory tracking system** with CSV integration  
-- 🤖 **AI-powered photo assessment** workflow
-- 📸 **Smart photo organization** by category and item
-- 🏷️ **Listing optimization tools** with templates and hashtags
+- 📸 **Photo organization** by category and item
+- 🏷️ **Listing templates and hashtags** for optimization
 - 🔗 **Direct Depop integration** for seamless uploading
 
 ## ⚙️ How It Works
