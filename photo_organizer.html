@@ -1,0 +1,2201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Depop Photo Organizer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+            line-height: 1.4;
+        }
+        
+        .header {
+            background: white;
+            padding: 16px 24px;
+            border-bottom: 1px solid #e5e5e5;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        .status-bar {
+            background: white;
+            padding: 16px 20px;
+            border-radius: 8px;
+            border: 1px solid #e5e5e5;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        
+        .status-text {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .photos-count {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+        
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #666;
+            border: 1px solid #e5e5e5;
+        }
+        
+        .btn-secondary:hover {
+            background: #e9ecef;
+            border-color: #ccc;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #1e7e34;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .completed-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .photos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .photo-card {
+            background: white;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .photo-card:hover {
+            border-color: #007bff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .photo-card.selected {
+            border-color: #007bff;
+            background: #f0f8ff;
+        }
+        
+        .photo-card.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #007bff;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .photo-card.used {
+            opacity: 0.5;
+            filter: grayscale(0.7);
+            position: relative;
+        }
+        
+        .photo-card.used::before {
+            content: '✓ Grouped';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0, 150, 0, 0.9);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            z-index: 2;
+            pointer-events: none;
+        }
+        
+        .photo-card.used:hover {
+            opacity: 0.7;
+        }
+        
+        .photo-card img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 4px;
+            background: #f5f5f5;
+        }
+        
+        .photo-info {
+            padding: 8px 4px 4px;
+            text-align: center;
+        }
+        
+        .photo-name {
+            font-size: 12px;
+            color: #666;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .action-bar {
+            background: white;
+            padding: 16px 20px;
+            border-radius: 8px;
+            border: 1px solid #e5e5e5;
+            margin-bottom: 24px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        
+        .action-bar.visible {
+            display: flex;
+        }
+        
+        .selected-count {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .selected-number {
+            font-weight: 600;
+            color: #007bff;
+        }
+        
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .modal-overlay.visible {
+            display: flex;
+        }
+        
+        /* Modal Content */
+        .item-form {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            border: 1px solid #e5e5e5;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            position: relative;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+        }
+        
+        .modal-close:hover {
+            background: #f5f5f5;
+            color: #333;
+        }
+        
+        .form-header {
+            margin-bottom: 20px;
+        }
+        
+        .form-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .selected-preview {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .preview-thumb {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 2px solid #e5e5e5;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        
+        .preview-thumb:hover {
+            transform: scale(1.05);
+            border-color: #007bff;
+        }
+        
+        /* Photo Preview Modal */
+        .photo-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .photo-modal.visible {
+            display: flex;
+        }
+        
+        .photo-modal-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .photo-modal img {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        
+        .photo-modal-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            font-size: 24px;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: background 0.2s;
+            user-select: none;
+        }
+        
+        .photo-modal-nav:hover {
+            background: rgba(0, 0, 0, 0.9);
+        }
+        
+        .photo-modal-prev {
+            left: 20px;
+        }
+        
+        .photo-modal-next {
+            right: 20px;
+        }
+        
+        .photo-modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 24px;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+        
+        .photo-modal-close:hover {
+            background: rgba(0, 0, 0, 0.9);
+        }
+        
+        .photo-modal-counter {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .photo-modal-nav {
+                padding: 10px 15px;
+                font-size: 20px;
+            }
+            
+            .photo-modal-prev {
+                left: 10px;
+            }
+            
+            .photo-modal-next {
+                right: 10px;
+            }
+            
+            .photo-modal-close {
+                top: 10px;
+                right: 10px;
+                padding: 8px 12px;
+                font-size: 20px;
+            }
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e5e5e5;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            transition: border-color 0.2s ease;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+        }
+        
+        .form-section {
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .form-section:last-child {
+            border-bottom: none;
+        }
+        
+        .form-section h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .section-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 16px;
+        }
+        
+        .char-count {
+            text-align: right;
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+        
+        
+        .field-hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+            display: block;
+        }
+        
+        .price-input {
+            display: flex;
+            align-items: center;
+            border: 1px solid #e5e5e5;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .price-input .currency {
+            background: #f8f9fa;
+            padding: 10px 12px;
+            font-weight: 500;
+            border-right: 1px solid #e5e5e5;
+        }
+        
+        .price-input input {
+            border: none;
+            padding: 10px 12px;
+            flex: 1;
+        }
+        
+        .price-input input:focus {
+            outline: none;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            padding-top: 20px;
+            border-top: 1px solid #e5e5e5;
+        }
+        
+        .completed-items {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            border: 1px solid #e5e5e5;
+            display: none;
+        }
+        
+        .completed-items.visible {
+            display: block;
+        }
+        
+        .completed-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        
+        .completed-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .completed-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+        
+        .completed-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            flex: 1;
+            border-radius: 4px;
+            padding: 4px;
+            transition: background-color 0.2s ease;
+        }
+        
+        .completed-content:hover {
+            background-color: rgba(0, 123, 255, 0.1);
+        }
+        
+        .completed-info {
+            flex: 1;
+        }
+        
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        .add-photos-btn {
+            white-space: nowrap;
+        }
+        
+        .completed-item.adding-photos {
+            background: #e8f5e8;
+            border: 2px solid #28a745;
+        }
+        
+        .completed-thumb {
+            width: 48px;
+            height: 48px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        
+        .completed-info h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        
+        .completed-details {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .error {
+            text-align: center;
+            padding: 40px;
+            color: #dc3545;
+            font-size: 14px;
+        }
+        
+        .csv-preview {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e5e5e5;
+            margin-top: 24px;
+        }
+        
+        .csv-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        
+        .csv-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .csv-content {
+            display: none;
+        }
+        
+        .csv-content.visible {
+            display: block;
+        }
+        
+        .csv-table-container {
+            max-height: 400px;
+            overflow: auto;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: #f8f9fa;
+        }
+        
+        .csv-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+            font-size: 12px;
+        }
+        
+        .csv-table th {
+            background: #e9ecef;
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            text-align: left;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        
+        .csv-table td {
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            white-space: nowrap;
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .csv-table tr:nth-child(even) {
+            background: #f5f5f5;
+        }
+        
+        .csv-table tr:hover {
+            background: #e8f4f8;
+        }
+        
+        .csv-empty {
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+        
+        @media (max-width: 768px) {
+            .photos-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 12px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .status-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .action-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Depop Photo Organizer</h1>
+    </div>
+    
+    <div class="container">
+        <div class="status-bar" id="statusBar">
+            <div class="status-text">
+                <span class="photos-count" id="photoCount">Loading photos...</span>
+            </div>
+            <button class="btn btn-secondary" id="refreshBtn">
+                🔄 Refresh
+            </button>
+        </div>
+        
+        <div class="action-bar" id="actionBar">
+            <div class="selected-count">
+                <span class="selected-number" id="selectedCount">0</span> photos selected
+            </div>
+            <div id="actionButtons">
+                <button class="btn btn-primary" id="groupBtn">Group Photos</button>
+                <button class="btn btn-success" id="addToItemBtn" style="display: none;">Add to Existing Item</button>
+                <button class="btn btn-secondary" id="clearBtn">Clear Selection</button>
+                <button class="btn btn-secondary" id="cancelAddBtn" style="display: none;">Cancel</button>
+            </div>
+        </div>
+        
+        <div class="loading" id="loadingState">
+            Loading your photos...
+        </div>
+        
+        <div class="error" id="errorState" style="display: none;">
+            Failed to load photos. Check that the server is running.
+        </div>
+        
+        <div class="photos-grid" id="photosGrid">
+            <!-- Photos will be inserted here -->
+        </div>
+        
+        <div class="modal-overlay" id="itemModal">
+            <div class="item-form" id="itemForm">
+                <button class="modal-close" id="modalClose">&times;</button>
+                <div class="form-header">
+                    <h3>Create Item</h3>
+                    <div class="selected-preview" id="selectedPreview">
+                        <!-- Selected photo previews will appear here -->
+                    </div>
+                </div>
+            
+            <form id="detailsForm">
+                <!-- Description Section -->
+                <div class="form-section">
+                    <h3>Description</h3>
+                    <div class="form-group full-width">
+                        <label for="title">Title</label>
+                        <input type="text" id="title" name="title" placeholder="eg. Vintage Nike T-shirt" maxlength="80">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="description">Description</label>
+                        <textarea id="description" name="description" rows="4" placeholder="eg. small grey Nike t-shirt, only worn a few times" maxlength="1000"></textarea>
+                        <div class="char-count">
+                            Hashtags: <span id="hashtagCount">0</span> <span id="descriptionCount">0</span>/1000
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info Section -->
+                <div class="form-section">
+                    <h3>Info</h3>
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <select id="category" name="category">
+                            <option value="">Select category</option>
+                            <option value="Men - Tops">Men - Tops</option>
+                            <option value="Men - Bottoms">Men - Bottoms</option>
+                            <option value="Men - Coats and jackets">Men - Coats and jackets</option>
+                            <option value="Men - Jumpsuits and playsuits">Men - Jumpsuits and playsuits</option>
+                            <option value="Men - Suits">Men - Suits</option>
+                            <option value="Men - Footwear">Men - Footwear</option>
+                            <option value="Men - Accessories">Men - Accessories</option>
+                            <option value="Men - Nightwear">Men - Nightwear</option>
+                            <option value="Men - Underwear">Men - Underwear</option>
+                            <option value="Men - Swimwear">Men - Swimwear</option>
+                            <option value="Men - Fancy dress">Men - Fancy dress</option>
+                            <option value="Women - Tops">Women - Tops</option>
+                            <option value="Women - Bottoms">Women - Bottoms</option>
+                            <option value="Women - Dresses">Women - Dresses</option>
+                            <option value="Women - Coats and jackets">Women - Coats and jackets</option>
+                            <option value="Women - Jumpsuits and playsuits">Women - Jumpsuits and playsuits</option>
+                            <option value="Women - Suits">Women - Suits</option>
+                            <option value="Women - Footwear">Women - Footwear</option>
+                            <option value="Women - Accessories">Women - Accessories</option>
+                            <option value="Women - Nightwear">Women - Nightwear</option>
+                            <option value="Women - Underwear">Women - Underwear</option>
+                            <option value="Women - Swimwear">Women - Swimwear</option>
+                            <option value="Women - Fancy dress">Women - Fancy dress</option>
+                            <option value="Kids - Tops">Kids - Tops</option>
+                            <option value="Kids - Bottoms">Kids - Bottoms</option>
+                            <option value="Kids - Dresses">Kids - Dresses</option>
+                            <option value="Kids - Coats and jackets">Kids - Coats and jackets</option>
+                            <option value="Kids - Jumpsuits and playsuits">Kids - Jumpsuits and playsuits</option>
+                            <option value="Kids - Suits">Kids - Suits</option>
+                            <option value="Kids - Footwear">Kids - Footwear</option>
+                            <option value="Kids - Accessories">Kids - Accessories</option>
+                            <option value="Kids - Nightwear">Kids - Nightwear</option>
+                            <option value="Kids - Swimwear">Kids - Swimwear</option>
+                            <option value="Kids - Fancy dress">Kids - Fancy dress</option>
+                            <option value="Kids - Sleepsuits and bodysuits">Kids - Sleepsuits and bodysuits</option>
+                            <option value="Kids - Clothing bundles">Kids - Clothing bundles</option>
+                            <option value="Everything else - Beauty">Everything else - Beauty</option>
+                            <option value="Everything else - Face masks and coverings">Everything else - Face masks and coverings</option>
+                            <option value="Everything else - Home">Everything else - Home</option>
+                            <option value="Everything else - Tech accessories">Everything else - Tech accessories</option>
+                            <option value="Everything else - Cameras and film">Everything else - Cameras and film</option>
+                            <option value="Everything else - Art">Everything else - Art</option>
+                            <option value="Everything else - Books and magazines">Everything else - Books and magazines</option>
+                            <option value="Everything else - Music">Everything else - Music</option>
+                            <option value="Everything else - Party supplies">Everything else - Party supplies</option>
+                            <option value="Everything else - Sports equipment">Everything else - Sports equipment</option>
+                            <option value="Everything else - Toys">Everything else - Toys</option>
+                            <option value="Everything else - Umbrellas">Everything else - Umbrellas</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="brand">Brand</label>
+                        <select id="brand" name="brand">
+                            <option value="">Select brand</option>
+                            <option value="UNIF">UNIF</option>
+                            <option value="Urban Outfitters">Urban Outfitters</option>
+                            <option value="Nike">Nike</option>
+                            <option value="Brandy Melville">Brandy Melville</option>
+                            <option value="Adidas">Adidas</option>
+                            <option value="Vintage">Vintage</option>
+                            <option value="Zara">Zara</option>
+                            <option value="Princess Polly">Princess Polly</option>
+                            <option value="Shein">Shein</option>
+                            <option value="H&M">H&M</option>
+                            <option value="Forever 21">Forever 21</option>
+                            <option value="American Eagle Outfitters">American Eagle Outfitters</option>
+                            <option value="PrettyLittleThing">PrettyLittleThing</option>
+                            <option value="Converse">Converse</option>
+                            <option value="Handmade">Handmade</option>
+                            <option value="Hollister">Hollister</option>
+                            <option value="Levi's">Levi's</option>
+                            <option value="Vans">Vans</option>
+                            <option value="Champion">Champion</option>
+                            <option value="Dr. Martens">Dr. Martens</option>
+                            <option value="Thrifted">Thrifted</option>
+                            <option value="Cotton On">Cotton On</option>
+                            <option value="Supreme">Supreme</option>
+                            <option value="Asos">Asos</option>
+                            <option value="PLT">PLT</option>
+                            <option value="Missguided">Missguided</option>
+                            <option value="Calvin Klein">Calvin Klein</option>
+                            <option value="Ralph Lauren">Ralph Lauren</option>
+                            <option value="Tommy Hilfiger">Tommy Hilfiger</option>
+                            <option value="Pacsun">Pacsun</option>
+                            <option value="Victoria's Secret">Victoria's Secret</option>
+                            <option value="UGG">UGG</option>
+                            <option value="Abercrombie & Fitch">Abercrombie & Fitch</option>
+                            <option value="Puma">Puma</option>
+                            <option value="Stussy">Stussy</option>
+                            <option value="White Fox">White Fox</option>
+                            <option value="Dickies">Dickies</option>
+                            <option value="Juicy Couture">Juicy Couture</option>
+                            <option value="Bershka">Bershka</option>
+                            <option value="Reebok">Reebok</option>
+                            <option value="New Balance">New Balance</option>
+                            <option value="Lazy Oaf">Lazy Oaf</option>
+                            <option value="The North Face">The North Face</option>
+                            <option value="Y2K">Y2K</option>
+                            <option value="Polo Ralph Lauren">Polo Ralph Lauren</option>
+                            <option value="Marc Ecko">Marc Ecko</option>
+                            <option value="Carhartt">Carhartt</option>
+                            <option value="Ed Hardy">Ed Hardy</option>
+                            <option value="Fila">Fila</option>
+                            <option value="True Religion">True Religion</option>
+                            <option value="Von Dutch">Von Dutch</option>
+                            <option value="Guess">Guess</option>
+                            <option value="Baby Phat">Baby Phat</option>
+                            <option value="Kappa">Kappa</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="condition">Condition</label>
+                        <select id="condition" name="condition">
+                            <option value="">Select condition</option>
+                            <option value="Brand new">Brand new</option>
+                            <option value="Like new">Like new</option>
+                            <option value="Used - Excellent">Used - Excellent</option>
+                            <option value="Used - Good">Used - Good</option>
+                            <option value="Used - Fair">Used - Fair</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Enhance your listing Section -->
+                <div class="form-section">
+                    <h3>Enhance your listing</h3>
+                    <p class="section-subtitle">Learn more about how we use tags in search</p>
+                    
+                    <div class="form-group">
+                        <label for="color">Colour</label>
+                        <select id="color" name="color" multiple>
+                            <option value="">Select up to two colours</option>
+                            <option value="Black">Black</option>
+                            <option value="Grey">Grey</option>
+                            <option value="White">White</option>
+                            <option value="Brown">Brown</option>
+                            <option value="Tan">Tan</option>
+                            <option value="Cream">Cream</option>
+                            <option value="Yellow">Yellow</option>
+                            <option value="Red">Red</option>
+                            <option value="Burgundy">Burgundy</option>
+                            <option value="Orange">Orange</option>
+                            <option value="Pink">Pink</option>
+                            <option value="Purple">Purple</option>
+                            <option value="Blue">Blue</option>
+                            <option value="Navy">Navy</option>
+                            <option value="Green">Green</option>
+                            <option value="Khaki">Khaki</option>
+                            <option value="Multi">Multi</option>
+                            <option value="Silver">Silver</option>
+                            <option value="Gold">Gold</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="source">Source</label>
+                        <select id="source" name="source" multiple>
+                            <option value="">What kind of item is this? Add up to 2</option>
+                            <option value="Vintage">Vintage</option>
+                            <option value="Preloved">Preloved</option>
+                            <option value="Reworked / Upcycled">Reworked / Upcycled</option>
+                            <option value="Custom">Custom</option>
+                            <option value="Handmade">Handmade</option>
+                            <option value="Deadstock">Deadstock</option>
+                            <option value="Designer">Designer</option>
+                            <option value="Repaired">Repaired</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="age">Age</label>
+                        <select id="age" name="age">
+                            <option value="">Do you know when this item was made? Add up to 1</option>
+                            <option value="Modern">Modern</option>
+                            <option value="00s">00s</option>
+                            <option value="90s">90s</option>
+                            <option value="80s">80s</option>
+                            <option value="70s">70s</option>
+                            <option value="60s">60s</option>
+                            <option value="50s">50s</option>
+                            <option value="Antique">Antique</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="style">Style</label>
+                        <select id="style" name="style" multiple>
+                            <option value="">Pick relevant tags to describe this item's style. Add up to 3</option>
+                            <option value="Streetwear">Streetwear</option>
+                            <option value="Sportswear">Sportswear</option>
+                            <option value="Goth">Goth</option>
+                            <option value="Retro">Retro</option>
+                            <option value="Boho">Boho</option>
+                            <option value="Western">Western</option>
+                            <option value="Indie">Indie</option>
+                            <option value="Skater">Skater</option>
+                            <option value="Rave">Rave</option>
+                            <option value="Costume">Costume</option>
+                            <option value="Cosplay">Cosplay</option>
+                            <option value="Grunge">Grunge</option>
+                            <option value="Emo">Emo</option>
+                            <option value="Minimalist">Minimalist</option>
+                            <option value="Preppy">Preppy</option>
+                            <option value="Avant Garde">Avant Garde</option>
+                            <option value="Punk">Punk</option>
+                            <option value="Glam">Glam</option>
+                            <option value="Regency">Regency</option>
+                            <option value="Casual">Casual</option>
+                            <option value="Utility">Utility</option>
+                            <option value="Futuristic">Futuristic</option>
+                            <option value="Cottage">Cottage</option>
+                            <option value="Fairy">Fairy</option>
+                            <option value="Kidcore">Kidcore</option>
+                            <option value="Y2K">Y2K</option>
+                            <option value="Biker">Biker</option>
+                            <option value="Gorpcore">Gorpcore</option>
+                            <option value="Twee">Twee</option>
+                            <option value="Coquette">Coquette</option>
+                            <option value="Whimsygoth">Whimsygoth</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Location Section -->
+                <div class="form-section">
+                    <h3>Location</h3>
+                    <div class="form-group">
+                        <label for="country">Country</label>
+                        <select id="country" name="country">
+                            <option value="Australia">Australia</option>
+                        </select>
+                        <p class="field-hint">Your location is based on your profile settings</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="city">City</label>
+                        <select id="city" name="city">
+                            <option value="Melbourne">Melbourne</option>
+                        </select>
+                        <p class="field-hint">Select your city from the dropdown list</p>
+                    </div>
+                </div>
+
+                <!-- Shipping Section -->
+                <div class="form-section">
+                    <h3>Shipping</h3>
+                    <div class="form-group">
+                        <label>
+                            <input type="radio" name="shippingType" value="other" checked>
+                            Domestic shipping - Other
+                        </label>
+                        <p class="field-hint">Set a shipping price when listing. When you sell, ship however you like using a tracked method.</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="shippingPrice">Shipping price</label>
+                        <div class="price-input">
+                            <span class="currency">A$</span>
+                            <input type="number" id="shippingPrice" name="shippingPrice" placeholder="0.00" step="0.01" min="0">
+                        </div>
+                        <p class="field-hint">Set a shipping price when listing. When you sell, ship however you like using a tracked method.</p>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="worldwideShipping" name="worldwideShipping">
+                            Offer worldwide shipping
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Item Price Section -->
+                <div class="form-section">
+                    <h3>Item price</h3>
+                    <div class="form-group">
+                        <div class="price-input">
+                            <span class="currency">A$</span>
+                            <input type="number" id="itemPrice" name="itemPrice" placeholder="0.00" step="0.01" min="0">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Internal Fields -->
+                <div class="form-section">
+                    <h3>Internal Use</h3>
+                    <div class="form-group">
+                        <label for="purchasePrice">Purchase Price (A$)</label>
+                        <input type="number" id="purchasePrice" name="purchasePrice" placeholder="0.00" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="size">Size</label>
+                        <input type="text" id="size" name="size" placeholder="e.g. S, M, L, UK 10">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="notes">Notes</label>
+                        <input type="text" id="notes" name="notes" placeholder="Any special details or flaws (for your reference only)">
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                    <button type="submit" class="btn btn-success">Save Item</button>
+                </div>
+            </form>
+            </div>
+        </div>
+        
+        <div class="completed-items" id="completedItems">
+            <div class="completed-header">
+                <h3>Completed Items</h3>
+                <button class="btn btn-primary" id="exportBtn">Export CSV</button>
+            </div>
+            <div id="completedList">
+                <!-- Completed items will appear here -->
+            </div>
+        </div>
+        
+        <div class="csv-preview" id="csvPreview">
+            <div class="csv-header">
+                <h3>CSV Preview</h3>
+                <button class="btn btn-secondary" id="toggleCsv">Show/Hide CSV</button>
+            </div>
+            <div class="csv-content" id="csvContent">
+                <div class="csv-table-container">
+                    <table id="csvTable" class="csv-table">
+                        <thead id="csvTableHead"></thead>
+                        <tbody id="csvTableBody"></tbody>
+                    </table>
+                    <div id="csvEmpty" class="csv-empty">No items created yet...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // App state
+        let photos = [];
+        let selectedPhotos = new Set();
+        let completedItems = [];
+        
+        // DOM elements
+        const photoCount = document.getElementById('photoCount');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const actionBar = document.getElementById('actionBar');
+        const selectedCount = document.getElementById('selectedCount');
+        const groupBtn = document.getElementById('groupBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const loadingState = document.getElementById('loadingState');
+        const errorState = document.getElementById('errorState');
+        const photosGrid = document.getElementById('photosGrid');
+        const itemForm = document.getElementById('itemForm');
+        const selectedPreview = document.getElementById('selectedPreview');
+        const detailsForm = document.getElementById('detailsForm');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const completedSection = document.getElementById('completedItems');
+        const completedList = document.getElementById('completedList');
+        const exportBtn = document.getElementById('exportBtn');
+        const itemModal = document.getElementById('itemModal');
+        const modalClose = document.getElementById('modalClose');
+        const csvPreview = document.getElementById('csvPreview');
+        const csvContent = document.getElementById('csvContent');
+        const csvTable = document.getElementById('csvTable');
+        const csvTableHead = document.getElementById('csvTableHead');
+        const csvTableBody = document.getElementById('csvTableBody');
+        const csvEmpty = document.getElementById('csvEmpty');
+        const toggleCsv = document.getElementById('toggleCsv');
+        const addToItemBtn = document.getElementById('addToItemBtn');
+        const cancelAddBtn = document.getElementById('cancelAddBtn');
+        
+        // Event listeners
+        refreshBtn.addEventListener('click', loadPhotos);
+        groupBtn.addEventListener('click', startGrouping);
+        clearBtn.addEventListener('click', clearSelection);
+        cancelBtn.addEventListener('click', cancelGrouping);
+        modalClose.addEventListener('click', cancelGrouping);
+        
+        // Debug: Check if detailsForm exists and add event listener
+        console.log('🔧 detailsForm element:', detailsForm);
+        if (detailsForm) {
+            console.log('🔧 Adding submit event listener to detailsForm');
+            detailsForm.addEventListener('submit', saveItem);
+            console.log('🔧 Submit event listener added successfully');
+            
+            // Also add click listener to submit button as backup
+            const submitBtn = detailsForm.querySelector('button[type="submit"]');
+            console.log('🔧 Submit button found:', submitBtn);
+            console.log('🔧 Form HTML:', detailsForm.innerHTML.substring(0, 200) + '...');
+            
+            // Try alternative selectors
+            const submitBtn2 = detailsForm.querySelector('.btn.btn-success');
+            console.log('🔧 Submit button by class:', submitBtn2);
+            
+            const submitBtn3 = document.querySelector('#detailsForm button[type="submit"]');
+            console.log('🔧 Submit button by full selector:', submitBtn3);
+            
+            if (submitBtn || submitBtn2 || submitBtn3) {
+                const btn = submitBtn || submitBtn2 || submitBtn3;
+                btn.addEventListener('click', function(e) {
+                    console.log('🔧 🔧 SUBMIT BUTTON CLICKED! 🔧 🔧');
+                    console.log('🔧 Button that was clicked:', e.target);
+                    // Don't prevent default here - let form submit normally
+                });
+            }
+        } else {
+            console.error('🔧 detailsForm element not found!');
+        }
+        
+        exportBtn.addEventListener('click', exportCSV);
+        toggleCsv.addEventListener('click', toggleCsvPreview);
+        addToItemBtn.addEventListener('click', addPhotosToExistingItem);
+        cancelAddBtn.addEventListener('click', cancelAddingPhotos);
+        
+        // Close modal when clicking outside
+        itemModal.addEventListener('click', (e) => {
+            if (e.target === itemModal) {
+                cancelGrouping();
+            }
+        });
+        
+        // Event delegation for "Add Photos", "Delete" buttons and item content clicks
+        completedList.addEventListener('click', (e) => {
+            if (e.target.classList.contains('add-photos-btn')) {
+                const itemId = e.target.dataset.itemId;
+                startAddingPhotos(itemId);
+            } else if (e.target.classList.contains('delete-item-btn')) {
+                const itemId = e.target.dataset.itemId;
+                deleteItem(itemId);
+            } else if (e.target.classList.contains('open-folder-btn')) {
+                const folderName = e.target.dataset.folder;
+                openItemFolder(folderName);
+            } else if (e.target.closest('.completed-content')) {
+                const itemId = e.target.closest('.completed-content').dataset.itemId;
+                editItem(itemId);
+            }
+        });
+        
+        // Load photos and completed items on startup
+        loadPhotos();
+        loadCompletedItems();
+        
+        async function loadPhotos() {
+            try {
+                console.log('Loading photos from server...');
+                loadingState.style.display = 'block';
+                errorState.style.display = 'none';
+                photosGrid.innerHTML = '';
+                
+                const response = await fetch('/api/photos');
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+                
+                const serverPhotos = await response.json();
+                console.log(`Loaded ${serverPhotos.length} photos from server`);
+                
+                if (serverPhotos.length === 0) {
+                    photoCount.textContent = 'No photos found in staging folder';
+                    loadingState.style.display = 'none';
+                    return;
+                }
+                
+                // Convert and store photos
+                photos = serverPhotos.map(serverPhoto => ({
+                    id: serverPhoto.id,
+                    name: serverPhoto.name,
+                    size: serverPhoto.size,
+                    modified: serverPhoto.modified,
+                    url: serverPhoto.url
+                }));
+                
+                // Display photos
+                photos.forEach(displayPhoto);
+                
+                // Apply usage states after photos are displayed
+                applyPhotoUsageStates();
+                
+                // Update UI
+                photoCount.textContent = `${photos.length} photos loaded`;
+                loadingState.style.display = 'none';
+                
+                console.log('Photos loaded successfully');
+                
+            } catch (error) {
+                console.error('Error loading photos:', error);
+                errorState.style.display = 'block';
+                loadingState.style.display = 'none';
+                photoCount.textContent = 'Error loading photos';
+            }
+        }
+        
+        async function loadCompletedItems() {
+            try {
+                console.log('Loading completed items from server...');
+                const response = await fetch('/api/completed-items');
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+                
+                const items = await response.json();
+                console.log(`Loaded ${items.length} completed items`);
+                
+                // Clear and populate completedItems array
+                completedItems.length = 0;
+                completedItems.push(...items);
+                
+                // Update displays
+                // Clear existing completed items display
+                completedList.innerHTML = '';
+                // Display each item
+                completedItems.forEach(item => displayCompletedItem(item));
+                updateCsvPreview();
+                
+                // Apply photo usage states after loading completed items
+                applyPhotoUsageStates();
+                
+            } catch (error) {
+                console.error('Error loading completed items:', error);
+                // Don't show error to user - it's okay if no items exist yet
+            }
+        }
+        
+        function displayPhoto(photo) {
+            const photoCard = document.createElement('div');
+            photoCard.className = 'photo-card';
+            photoCard.dataset.photoId = photo.id;
+            
+            photoCard.innerHTML = `
+                <img src="${photo.url}" alt="${photo.name}" loading="lazy">
+                <div class="photo-info">
+                    <div class="photo-name">${photo.name}</div>
+                </div>
+            `;
+            
+            photoCard.addEventListener('click', () => toggleSelection(photo.id));
+            photosGrid.appendChild(photoCard);
+        }
+        
+        function toggleSelection(photoId) {
+            const photoCard = document.querySelector(`[data-photo-id="${photoId}"]`);
+            
+            if (selectedPhotos.has(photoId)) {
+                selectedPhotos.delete(photoId);
+                photoCard.classList.remove('selected');
+            } else {
+                selectedPhotos.add(photoId);
+                photoCard.classList.add('selected');
+            }
+            
+            updateActionBar();
+        }
+        
+        function clearSelection() {
+            selectedPhotos.clear();
+            document.querySelectorAll('.photo-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            updateActionBar();
+        }
+        
+        function updateActionBar() {
+            selectedCount.textContent = selectedPhotos.size;
+            
+            if (selectedPhotos.size > 0) {
+                actionBar.classList.add('visible');
+            } else {
+                actionBar.classList.remove('visible');
+            }
+        }
+        
+        function startGrouping() {
+            if (selectedPhotos.size === 0) return;
+            
+            // Show selected photos preview
+            selectedPreview.innerHTML = '';
+            Array.from(selectedPhotos).slice(0, 4).forEach((photoId, index) => {
+                const photo = photos.find(p => p.id === photoId);
+                const img = document.createElement('img');
+                img.src = photo.url;
+                img.className = 'preview-thumb';
+                img.dataset.photoIndex = index;
+                img.dataset.photoUrl = photo.url;
+                img.title = 'Click to view larger';
+                img.addEventListener('click', () => openPhotoModal(index));
+                selectedPreview.appendChild(img);
+            });
+            
+            // Show modal instead of scrolling
+            document.getElementById('itemModal').classList.add('visible');
+            
+            // Ensure submit event listener is attached when modal is shown
+            const form = document.getElementById('detailsForm');
+            if (form) {
+                form.removeEventListener('submit', saveItem);
+                form.addEventListener('submit', saveItem);
+            }
+        }
+        
+        function cancelGrouping() {
+            // Hide modal instead of removing form visibility
+            document.getElementById('itemModal').classList.remove('visible');
+            detailsForm.reset();
+        }
+        
+        async function saveItem(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(detailsForm);
+            console.log('🔧 Form data extracted');
+            
+            // Check if we're editing an existing item
+            const isEditing = window.editingItem !== undefined;
+            let selectedPhotoNames = [];
+            
+            if (isEditing) {
+                // For editing, keep existing photos and any additional selected photos
+                selectedPhotoNames = window.editingItem.photos.map(photo => 
+                    typeof photo === 'string' ? photo : photo.name
+                );
+                // Add any newly selected photos
+                Array.from(selectedPhotos).forEach(photoId => {
+                    const photo = photos.find(p => p.id === photoId);
+                    if (photo && !selectedPhotoNames.includes(photo.name)) {
+                        selectedPhotoNames.push(photo.name);
+                    }
+                });
+            } else {
+                // For new items, use selected photos
+                selectedPhotoNames = Array.from(selectedPhotos).map(photoId => {
+                    const photo = photos.find(p => p.id === photoId);
+                    return photo.name;
+                });
+            }
+            
+            console.log('🔧 Selected photos:', selectedPhotoNames.length, 'photos');
+            console.log('🔧 Photos:', selectedPhotoNames);
+            
+            // Check if we have photos selected
+            if (selectedPhotoNames.length === 0 && !isEditing) {
+                alert('❌ Please select at least one photo first!');
+                return;
+            }
+            
+            // Handle multiple select values
+            const colorSelect = document.getElementById('color');
+            const sourceSelect = document.getElementById('source');
+            const styleSelect = document.getElementById('style');
+            
+            const colorValues = Array.from(colorSelect.selectedOptions).map(option => option.value);
+            const sourceValues = Array.from(sourceSelect.selectedOptions).map(option => option.value);
+            const styleValues = Array.from(styleSelect.selectedOptions).map(option => option.value);
+            
+            const itemData = {
+                brand: formData.get('brand'),
+                category: formData.get('category'),
+                title: formData.get('title') || '',
+                description: formData.get('description') || '',
+                style: styleValues.join(', '),
+                source: sourceValues.join(', '),
+                age: formData.get('age') || '',
+                size: formData.get('size') || '',
+                color: colorValues.join(', '),
+                condition: formData.get('condition'),
+                purchasePrice: formData.get('purchasePrice') || '',
+                targetPrice: formData.get('targetPrice') || '',
+                itemPrice: formData.get('itemPrice') || '',
+                shippingPrice: formData.get('shippingPrice') || '',
+                notes: formData.get('notes') || '',
+                photos: selectedPhotoNames
+            };
+            
+            // Add item ID if editing
+            if (isEditing) {
+                itemData.itemId = window.editingItem.id;
+            }
+            
+            console.log('🔧 Item data to be sent:', itemData);
+            
+            try {
+                const response = await fetch('/api/save-item', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(itemData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    console.warn('Response is not JSON:', await response.text());
+                    // If it's not JSON but the request succeeded, treat as success
+                    if (response.status === 200) {
+                        var result = { success: true, message: 'Item saved successfully!' };
+                    } else {
+                        throw new Error('Server returned non-JSON response');
+                    }
+                } else {
+                    var result = await response.json();
+                }
+                
+                if (result.success) {
+                    if (isEditing) {
+                        // Update existing item in completedItems array
+                        const itemIndex = completedItems.findIndex(item => item.id === window.editingItem.id);
+                        if (itemIndex !== -1) {
+                            completedItems[itemIndex] = {
+                                ...window.editingItem,
+                                ...itemData,
+                                photos: window.editingItem.photos // Keep existing photos
+                            };
+                            
+                            // Refresh the UI by reloading completed items
+                            completedList.innerHTML = '';
+                            completedItems.forEach(item => displayCompletedItem(item));
+                        }
+                        
+                        // Clean up editing state
+                        window.editingItem = undefined;
+                        document.querySelector('.item-form h2').textContent = 'Item Details';
+                    } else {
+                        // Add new item to completed items
+                        const displayItem = {
+                            id: result.itemId,
+                            ...itemData,
+                            photos: Array.from(selectedPhotos).map(photoId => photos.find(p => p.id === photoId))
+                        };
+                        
+                        completedItems.push(displayItem);
+                        displayCompletedItem(displayItem);
+                    }
+                    
+                    // Clean up
+                    clearSelection();
+                    cancelGrouping();
+                    
+                    // Update photo usage states and CSV preview
+                    setTimeout(() => applyPhotoUsageStates(), 500);
+                    updateCsvPreview();
+                    
+                    alert(`✅ ${result.message}`);
+                } else {
+                    alert(`❌ Error: ${result.error}`);
+                }
+                
+            } catch (error) {
+                console.error('Error saving item:', error);
+                console.error('Response status:', response ? response.status : 'No response');
+                console.error('Response body:', result || 'Failed to parse JSON');
+                alert('❌ Error saving item. Check console for details.');
+            }
+        }
+        
+        function applyPhotoUsageStates() {
+            // Get all used photo names from completed items
+            const usedPhotoNames = new Set();
+            
+            console.log('Applying photo usage states...');
+            console.log('Completed items:', completedItems.length);
+            
+            // Check if completedItems exist and collect used photos
+            if (completedItems && Array.isArray(completedItems)) {
+                completedItems.forEach(item => {
+                    if (item.photos && Array.isArray(item.photos)) {
+                        item.photos.forEach(photo => {
+                            // Extract filename from photo data
+                            let photoName = '';
+                            if (typeof photo === 'string') {
+                                // If photo is a string, it might be the filename
+                                photoName = photo;
+                            } else if (photo.name) {
+                                // If photo is an object with name property
+                                photoName = photo.name;
+                            }
+                            if (photoName) {
+                                usedPhotoNames.add(photoName);
+                            }
+                        });
+                    }
+                });
+            }
+            
+            console.log('Used photo names:', usedPhotoNames.size, 'photos');
+            
+            // Apply "used" class to photo cards that are already used
+            let usedCount = 0;
+            photos.forEach(photo => {
+                const photoCard = document.querySelector(`[data-photo-id="${photo.id}"]`);
+                
+                // Check if this photo is used - handle both exact match and suffix variants
+                let isUsed = false;
+                if (usedPhotoNames.has(photo.name)) {
+                    isUsed = true;
+                } else {
+                    // Check if there's a used photo that matches this photo's base name
+                    // e.g., IMG_3058_1.HEIC should match IMG_3058.HEIC
+                    const baseName = photo.name;
+                    for (const usedName of usedPhotoNames) {
+                        // Remove suffix like _1, _2, etc. from used photo name
+                        const usedBaseName = usedName.replace(/_\d+(\.\w+)$/, '$1');
+                        if (usedBaseName === baseName) {
+                            isUsed = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if (photoCard && isUsed) {
+                    photoCard.classList.add('used');
+                    usedCount++;
+                } else if (photoCard) {
+                    photoCard.classList.remove('used');
+                }
+            });
+            
+            console.log(`Marked ${usedCount} photos as used`);
+        }
+        
+        function updatePhotoUsageStates() {
+            // Reapply photo usage states based on current completed items
+            applyPhotoUsageStates();
+        }
+        
+        async function deleteItem(itemId) {
+            if (!confirm('Are you sure you want to delete this item? This will remove it from the CSV and free up the photos to be used again.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/delete-item/${itemId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    // Remove item from UI
+                    const itemElement = document.querySelector(`[data-item-id="${itemId}"]`);
+                    if (itemElement) {
+                        itemElement.remove();
+                    }
+                    
+                    // Remove item from completedItems array
+                    const itemIndex = completedItems.findIndex(item => item.id === itemId);
+                    if (itemIndex !== -1) {
+                        completedItems.splice(itemIndex, 1);
+                    }
+                    
+                    // Mark photos as available again
+                    updatePhotoUsageStates();
+                    
+                    // Update CSV preview
+                    await updateCsvPreview();
+                    
+                    console.log('Item deleted successfully');
+                } else {
+                    throw new Error(`Server returned ${response.status}`);
+                }
+            } catch (error) {
+                console.error('Error deleting item:', error);
+                alert('❌ Error deleting item. Make sure the server is running.');
+            }
+        }
+        
+        async function openItemFolder(folderName) {
+            try {
+                const response = await fetch(`/api/open-folder/${encodeURIComponent(folderName)}`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    console.log('Folder opened successfully');
+                } else {
+                    throw new Error(`Server returned ${response.status}`);
+                }
+            } catch (error) {
+                console.error('Error opening folder:', error);
+                alert('❌ Error opening folder. Make sure the server is running and the folder exists.');
+            }
+        }
+        
+        function editItem(itemId) {
+            // Find the item in completedItems array
+            const item = completedItems.find(item => item.id === itemId);
+            if (!item) {
+                alert('Item not found');
+                return;
+            }
+            
+            // Store current editing state
+            window.editingItem = item;
+            
+            // Populate form with existing data - matching new Depop structure
+            const descriptionField = document.getElementById('description');
+            const categoryField = document.getElementById('category');
+            const brandField = document.getElementById('brand');
+            const conditionField = document.getElementById('condition');
+            const colorField = document.getElementById('color');
+            const sourceField = document.getElementById('source');
+            const ageField = document.getElementById('age');
+            const styleField = document.getElementById('style');
+            const countryField = document.getElementById('country');
+            const cityField = document.getElementById('city');
+            const shippingPriceField = document.getElementById('shippingPrice');
+            const worldwideShippingField = document.getElementById('worldwideShipping');
+            const itemPriceField = document.getElementById('itemPrice');
+            const purchasePriceField = document.getElementById('purchasePrice');
+            const sizeField = document.getElementById('size');
+            const notesField = document.getElementById('notes');
+            
+            if (descriptionField) {
+                descriptionField.value = item.description || '';
+                // Trigger character count update
+                descriptionField.dispatchEvent(new Event('input'));
+            }
+            if (categoryField) categoryField.value = item.category ? item.category.split(' > ')[0] : '';
+            if (brandField) brandField.value = item.brand || '';
+            if (conditionField) conditionField.value = item.condition || '';
+            if (colorField) colorField.value = item.color || '';
+            if (sourceField) sourceField.value = item.source || '';
+            if (ageField) ageField.value = item.age || '';
+            if (styleField) styleField.value = item.style || '';
+            if (countryField) countryField.value = 'Australia';
+            if (cityField) cityField.value = 'Melbourne';
+            if (shippingPriceField) shippingPriceField.value = item.shippingPrice || '';
+            if (worldwideShippingField) worldwideShippingField.checked = item.worldwideShipping || false;
+            if (itemPriceField) itemPriceField.value = item.itemPrice || item.targetPrice || '';
+            if (purchasePriceField) purchasePriceField.value = item.purchasePrice || '';
+            if (sizeField) sizeField.value = item.size || '';
+            if (notesField) notesField.value = item.notes || '';
+            
+            // Update modal title
+            const titleElement = document.querySelector('.form-header h3');
+            if (titleElement) {
+                titleElement.textContent = `Edit Item: ${item.id}`;
+            }
+            
+            // Show the modal
+            itemModal.classList.add('visible');
+        }
+        
+        function displayCompletedItem(item) {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'completed-item';
+            itemDiv.setAttribute('data-item-id', item.id);
+            
+            const thumbnailUrl = item.photos[0]?.url || '';
+            
+            itemDiv.innerHTML = `
+                <div class="completed-content" data-item-id="${item.id}">
+                    <img src="${thumbnailUrl}" alt="${item.title || item.category}" class="completed-thumb">
+                    <div class="completed-info">
+                        <h4>${item.id}: ${item.title || `${item.brand} ${item.category}`}</h4>
+                        <div class="completed-details">${item.size} • ${item.color} • ${item.condition} • ${item.photos.length} photos</div>
+                    </div>
+                </div>
+                <div class="completed-actions">
+                    <button class="btn btn-small btn-secondary add-photos-btn" data-item-id="${item.id}">+ Add Photos</button>
+                    ${item.depopFolder ? `<button class="btn btn-small btn-primary open-folder-btn" data-folder="${item.depopFolder}">Open Folder</button>` : ''}
+                    <button class="btn btn-small btn-danger delete-item-btn" data-item-id="${item.id}">Delete</button>
+                </div>
+            `;
+            
+            completedList.appendChild(itemDiv);
+            completedSection.classList.add('visible');
+            updateCsvPreview();
+        }
+        
+        function exportCSV() {
+            // Export functionality would go here
+            alert('Export CSV functionality - would download inventory file');
+        }
+        
+        function toggleCsvPreview() {
+            csvContent.classList.toggle('visible');
+        }
+        
+        function updateCsvPreview() {
+            if (completedItems.length === 0) {
+                csvTable.style.display = 'none';
+                csvEmpty.style.display = 'block';
+                return;
+            }
+            
+            csvEmpty.style.display = 'none';
+            csvTable.style.display = 'table';
+            
+            // CSV Headers - Updated to match new Depop field structure
+            const headers = [
+                'Item_ID', 'Brand', 'Category', 'Subcategory', 'Title', 'Description', 
+                'Style', 'Source', 'Age', 'Size', 'Color', 'Condition',
+                'Purchase_Price', 'Target_Price', 'Actual_Sale_Price',
+                'Parcel_Size', 'International_Shipping', 'City',
+                'Photo_1', 'Photo_2', 'Photo_3', 'Photo_4', 
+                'Hashtags', 'Status', 'Date_Added', 'Date_Listed', 'Date_Sold', 
+                'Likes', 'Views', 'Notes'
+            ];
+            
+            // Create header row
+            csvTableHead.innerHTML = '';
+            const headerRow = document.createElement('tr');
+            headers.forEach(header => {
+                const th = document.createElement('th');
+                th.textContent = header;
+                th.title = header; // Tooltip for full header name
+                headerRow.appendChild(th);
+            });
+            csvTableHead.appendChild(headerRow);
+            
+            // Create data rows
+            csvTableBody.innerHTML = '';
+            completedItems.forEach(item => {
+                const tr = document.createElement('tr');
+                
+                const rowData = [
+                    item.id || '',
+                    item.brand || '',
+                    item.category || '',
+                    item.subcategory || '',
+                    item.title || '',
+                    item.description || '',
+                    item.style || '',
+                    item.source || '',
+                    item.age || '',
+                    item.size || '',
+                    item.color || '',
+                    item.condition || '',
+                    item.purchasePrice || '',
+                    item.targetPrice || '',
+                    item.actualSalePrice || '',
+                    item.parcelSize || '',
+                    item.internationalShipping || '',
+                    item.city || '',
+                    // Show the actual organized photo filenames from CSV
+                    item.photos.length > 0 ? (typeof item.photos[0] === 'string' ? item.photos[0] : item.photos[0]?.name || '') : '',
+                    item.photos.length > 1 ? (typeof item.photos[1] === 'string' ? item.photos[1] : item.photos[1]?.name || '') : '',
+                    item.photos.length > 2 ? (typeof item.photos[2] === 'string' ? item.photos[2] : item.photos[2]?.name || '') : '',
+                    item.photos.length > 3 ? (typeof item.photos[3] === 'string' ? item.photos[3] : item.photos[3]?.name || '') : '',
+                    item.hashtags || generateHashtags(item.category, item.brand),
+                    'Not Listed',
+                    item.dateAdded || new Date().toISOString().split('T')[0],
+                    item.dateListed || '',
+                    item.dateSold || '',
+                    item.likes || '0',
+                    item.views || '0',
+                    item.notes || ''
+                ];
+                
+                rowData.forEach(cellData => {
+                    const td = document.createElement('td');
+                    td.textContent = cellData;
+                    td.title = cellData; // Tooltip for full content
+                    tr.appendChild(td);
+                });
+                
+                csvTableBody.appendChild(tr);
+            });
+        }
+        
+        function generateHashtags(category, brand) {
+            const hashtagBank = {
+                'tops': ['#top', '#shirt', '#blouse', '#workwear', '#casual'],
+                'dresses': ['#dress', '#midi', '#party', '#formal', '#cottagecore'],
+                'bottoms': ['#jeans', '#trousers', '#y2k', '#highwaisted', '#vintage'],
+                'outerwear': ['#jacket', '#coat', '#blazer', '#oversized', '#structured'],
+                'shoes': ['#shoes', '#boots', '#sneakers', '#platform', '#chunky'],
+                'accessories': ['#accessories', '#bag', '#jewelry', '#vintage', '#statement']
+            };
+            
+            let tags = [];
+            
+            if (category && category.toLowerCase() in hashtagBank) {
+                tags.push(...hashtagBank[category.toLowerCase()].slice(0, 3));
+            }
+            
+            if (brand) {
+                tags.push(`#${brand.toLowerCase()}`);
+            }
+            
+            tags.push('#preloved');
+            
+            return tags.slice(0, 5).join(' ');
+        }
+        
+        // Global variable to track if we're adding to existing item
+        let addingToItemId = null;
+        
+        function startAddingPhotos(itemId) {
+            addingToItemId = itemId;
+            const item = completedItems.find(item => item.id === itemId);
+            
+            // Switch UI to adding mode
+            groupBtn.style.display = 'none';
+            addToItemBtn.style.display = 'inline-block';
+            cancelAddBtn.style.display = 'inline-block';
+            
+            // Update status text
+            document.querySelector('.selected-count').innerHTML = 
+                `Adding photos to <strong>${item.title || `${item.brand} ${item.category}`} (${item.id})</strong>`;
+            
+            // Highlight the item we're adding to
+            document.querySelectorAll('.completed-item').forEach(el => el.classList.remove('adding-photos'));
+            const itemElement = document.querySelector(`[data-item-id="${itemId}"]`).closest('.completed-item');
+            if (itemElement) {
+                itemElement.classList.add('adding-photos');
+            }
+            
+            alert(`Select additional photos for ${item.title || `${item.brand} ${item.category}`} (${item.id}), then click "Add to Existing Item"`);
+        }
+        
+        function cancelAddingPhotos() {
+            addingToItemId = null;
+            
+            // Reset UI to normal mode
+            groupBtn.style.display = 'inline-block';
+            addToItemBtn.style.display = 'none';
+            cancelAddBtn.style.display = 'none';
+            
+            // Clear highlights
+            document.querySelectorAll('.completed-item').forEach(el => el.classList.remove('adding-photos'));
+            
+            // Clear selection and update action bar
+            clearSelection();
+        }
+        
+        function addPhotosToExistingItem() {
+            if (!addingToItemId || selectedPhotos.size === 0) {
+                alert('Please select photos to add');
+                return;
+            }
+            
+            const item = completedItems.find(item => item.id === addingToItemId);
+            if (!item) {
+                alert('Item not found');
+                return;
+            }
+            
+            // Add new photos to the existing item
+            const newPhotos = Array.from(selectedPhotos).map(photoId => {
+                return photos.find(p => p.id === photoId);
+            });
+            
+            // TODO: Send to server to update the item
+            // For now, just update locally
+            item.photos.push(...newPhotos);
+            
+            // Reset UI to normal mode
+            cancelAddingPhotos();
+            
+            // Refresh displays
+            updateCompletedItemDisplay(item);
+            updateCsvPreview();
+            
+            alert(`✅ Added ${newPhotos.length} photos to ${item.title || `${item.brand} ${item.category}`}`);
+        }
+        
+        function updateCompletedItemDisplay(item) {
+            // Find and update the item display
+            const itemElement = document.querySelector(`[data-item-id="${item.id}"]`).closest('.completed-item');
+            if (itemElement) {
+                const detailsElement = itemElement.querySelector('.completed-details');
+                if (detailsElement) {
+                    detailsElement.textContent = `${item.size} • ${item.color} • ${item.condition} • ${item.photos.length} photos`;
+                }
+            }
+        }
+        
+        // Hierarchical category system
+        const categoryData = {
+            women: {
+                'Tops': ['T-shirts', 'Tank tops', 'Blouses', 'Shirts', 'Sweaters', 'Hoodies', 'Cardigans', 'Blazers', 'Crop tops', 'Long sleeve tops'],
+                'Dresses': ['Mini dresses', 'Midi dresses', 'Maxi dresses', 'Casual dresses', 'Party dresses', 'Wedding dresses'],
+                'Skirts': ['Mini skirts', 'Midi skirts', 'Maxi skirts', 'A-line skirts', 'Pleated skirts'],
+                'Shorts': ['Denim shorts', 'High waisted shorts', 'Tailored shorts', 'Athletic shorts'],
+                'Trousers': ['Jeans', 'Leggings', 'Joggers', 'Tailored trousers', 'Wide leg trousers'],
+                'Jumpsuits & Playsuits': ['Jumpsuits', 'Playsuits', 'Dungarees'],
+                'Coats & Jackets': ['Winter coats', 'Blazers', 'Denim jackets', 'Leather jackets', 'Bombers'],
+                'Knitwear': ['Jumpers', 'Cardigans', 'Hoodies', 'Sweatshirts'],
+                'Activewear': ['Sports bras', 'Leggings', 'Hoodies', 'T-shirts', 'Shorts'],
+                'Swimwear': ['Bikinis', 'Swimsuits', 'Cover ups'],
+                'Underwear & Sleepwear': ['Bras', 'Underwear', 'Pyjamas', 'Nightwear'],
+                'Shoes': ['Trainers', 'Boots', 'Heels', 'Sandals', 'Flats'],
+                'Bags': ['Handbags', 'Shoulder bags', 'Backpacks', 'Clutches', 'Tote bags'],
+                'Accessories': ['Jewellery', 'Watches', 'Sunglasses', 'Hats', 'Scarves', 'Hair accessories'],
+                'Beauty': ['Makeup', 'Skincare', 'Fragrance', 'Hair care', 'Nail care']
+            },
+            men: {
+                'Tops': ['T-shirts', 'Shirts', 'Polo shirts', 'Tank tops', 'Long sleeve tops'],
+                'Knitwear': ['Jumpers', 'Cardigans', 'Hoodies', 'Sweatshirts'],
+                'Coats & Jackets': ['Winter coats', 'Blazers', 'Denim jackets', 'Leather jackets', 'Bombers'],
+                'Trousers': ['Jeans', 'Chinos', 'Joggers', 'Tailored trousers', 'Cargo trousers'],
+                'Shorts': ['Denim shorts', 'Chino shorts', 'Swim shorts', 'Athletic shorts'],
+                'Activewear': ['Hoodies', 'T-shirts', 'Shorts', 'Joggers', 'Sports tops'],
+                'Underwear & Sleepwear': ['Underwear', 'Socks', 'Pyjamas', 'Nightwear'],
+                'Shoes': ['Trainers', 'Boots', 'Smart shoes', 'Sandals', 'Casual shoes'],
+                'Bags': ['Backpacks', 'Messenger bags', 'Shoulder bags', 'Weekend bags'],
+                'Accessories': ['Watches', 'Sunglasses', 'Hats', 'Belts', 'Wallets'],
+                'Suits & Tailoring': ['Suits', 'Blazers', 'Waistcoats', 'Formal trousers'],
+                'Beauty': ['Skincare', 'Fragrance', 'Hair care', 'Grooming']
+            },
+            home: {
+                'Art': ['Prints', 'Paintings', 'Photography', 'Sculptures'],
+                'Lighting': ['Table lamps', 'Floor lamps', 'Pendant lights', 'Wall lights'],
+                'Furniture': ['Chairs', 'Tables', 'Storage', 'Sofas', 'Beds'],
+                'Textiles': ['Cushions', 'Throws', 'Curtains', 'Rugs'],
+                'Kitchen': ['Crockery', 'Glassware', 'Cutlery', 'Appliances'],
+                'Bathroom': ['Towels', 'Storage', 'Accessories', 'Decor'],
+                'Plants': ['Indoor plants', 'Planters', 'Plant accessories']
+            },
+            entertainment: {
+                'Books': ['Fiction', 'Non-fiction', 'Textbooks', 'Comics'],
+                'Music': ['Vinyl records', 'CDs', 'Cassettes', 'Music equipment'],
+                'Films & TV': ['DVDs', 'Blu-rays', 'Collectibles', 'Memorabilia'],
+                'Games': ['Video games', 'Board games', 'Trading cards', 'Gaming accessories'],
+                'Sports': ['Equipment', 'Clothing', 'Accessories', 'Memorabilia'],
+                'Toys': ['Action figures', 'Dolls', 'Educational toys', 'Collectibles']
+            },
+            designer: {
+                'Clothing': ['Dresses', 'Tops', 'Trousers', 'Skirts', 'Outerwear'],
+                'Shoes': ['Heels', 'Trainers', 'Boots', 'Flats', 'Sandals'],
+                'Bags': ['Handbags', 'Shoulder bags', 'Backpacks', 'Clutches'],
+                'Accessories': ['Jewellery', 'Watches', 'Sunglasses', 'Belts', 'Scarves'],
+                'Beauty': ['Makeup', 'Skincare', 'Fragrance']
+            },
+            vintage: {
+                'Clothing': ['Dresses', 'Tops', 'Trousers', 'Skirts', 'Outerwear'],
+                'Shoes': ['Boots', 'Heels', 'Flats', 'Trainers'],
+                'Bags': ['Handbags', 'Shoulder bags', 'Clutches', 'Vintage bags'],
+                'Accessories': ['Jewellery', 'Watches', 'Sunglasses', 'Hats'],
+                'Collectibles': ['Postcards', 'Magazines', 'Records', 'Memorabilia']
+            }
+        };
+        
+        // Photo Modal functionality
+        let currentModalPhotoIndex = 0;
+        let modalPhotos = [];
+        
+        function openPhotoModal(photoIndex) {
+            const selectedPhotoIds = Array.from(selectedPhotos);
+            modalPhotos = selectedPhotoIds.map(photoId => photos.find(p => p.id === photoId));
+            currentModalPhotoIndex = photoIndex;
+            
+            updateModalPhoto();
+            document.getElementById('photoModal').classList.add('visible');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+        
+        function closePhotoModal() {
+            document.getElementById('photoModal').classList.remove('visible');
+            document.body.style.overflow = ''; // Restore scrolling
+        }
+        
+        function updateModalPhoto() {
+            const photo = modalPhotos[currentModalPhotoIndex];
+            if (photo) {
+                document.getElementById('photoModalImage').src = photo.url;
+                document.getElementById('photoModalCounter').textContent = 
+                    `${currentModalPhotoIndex + 1} / ${modalPhotos.length}`;
+                
+                // Show/hide navigation buttons
+                const prevBtn = document.getElementById('photoModalPrev');
+                const nextBtn = document.getElementById('photoModalNext');
+                
+                if (modalPhotos.length <= 1) {
+                    prevBtn.style.display = 'none';
+                    nextBtn.style.display = 'none';
+                } else {
+                    prevBtn.style.display = currentModalPhotoIndex === 0 ? 'none' : 'block';
+                    nextBtn.style.display = currentModalPhotoIndex === modalPhotos.length - 1 ? 'none' : 'block';
+                }
+            }
+        }
+        
+        function navigateModal(direction) {
+            if (direction === 'prev' && currentModalPhotoIndex > 0) {
+                currentModalPhotoIndex--;
+            } else if (direction === 'next' && currentModalPhotoIndex < modalPhotos.length - 1) {
+                currentModalPhotoIndex++;
+            }
+            updateModalPhoto();
+        }
+        
+
+        // Setup form functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Character counter for description
+            const descriptionField = document.getElementById('description');
+            const descriptionCount = document.getElementById('descriptionCount');
+            
+            const hashtagCount = document.getElementById('hashtagCount');
+            
+            if (descriptionField && descriptionCount && hashtagCount) {
+                function updateCharCount() {
+                    const text = descriptionField.value;
+                    const charCount = text.length;
+                    descriptionCount.textContent = charCount;
+                    
+                    // Count hashtags in description
+                    const hashtags = text.split(/\s+/).filter(word => word.startsWith('#') && word.length > 1);
+                    const hashtagsCount = hashtags.length;
+                    hashtagCount.textContent = hashtagsCount;
+                    
+                    // Change character count color when approaching limit
+                    if (charCount > 900) {
+                        descriptionCount.style.color = '#e74c3c';
+                    } else if (charCount > 800) {
+                        descriptionCount.style.color = '#f39c12';
+                    } else {
+                        descriptionCount.style.color = '#666';
+                    }
+                    
+                    // Change hashtag count color based on count (max 5)
+                    if (hashtagsCount > 5) {
+                        hashtagCount.style.color = '#e74c3c';
+                    } else if (hashtagsCount === 5) {
+                        hashtagCount.style.color = '#f39c12';
+                    } else {
+                        hashtagCount.style.color = '#666';
+                    }
+                }
+                
+                descriptionField.addEventListener('input', updateCharCount);
+                updateCharCount(); // Initial count
+            }
+            
+            // Setup photo modal event listeners
+            document.getElementById('photoModalClose').addEventListener('click', closePhotoModal);
+            document.getElementById('photoModalPrev').addEventListener('click', () => navigateModal('prev'));
+            document.getElementById('photoModalNext').addEventListener('click', () => navigateModal('next'));
+            
+            // Close modal when clicking outside the image
+            document.getElementById('photoModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closePhotoModal();
+                }
+            });
+            
+            // Keyboard navigation
+            document.addEventListener('keydown', function(e) {
+                const modal = document.getElementById('photoModal');
+                if (modal.classList.contains('visible')) {
+                    switch(e.key) {
+                        case 'Escape':
+                            closePhotoModal();
+                            break;
+                        case 'ArrowLeft':
+                            navigateModal('prev');
+                            break;
+                        case 'ArrowRight':
+                            navigateModal('next');
+                            break;
+                    }
+                }
+            });
+        });
+    </script>
+
+    <!-- Photo Preview Modal -->
+    <div class="photo-modal" id="photoModal">
+        <div class="photo-modal-content">
+            <button class="photo-modal-close" id="photoModalClose">&times;</button>
+            <button class="photo-modal-nav photo-modal-prev" id="photoModalPrev">&#8249;</button>
+            <img id="photoModalImage" src="" alt="Photo preview">
+            <button class="photo-modal-nav photo-modal-next" id="photoModalNext">&#8250;</button>
+            <div class="photo-modal-counter" id="photoModalCounter">1 / 1</div>
+        </div>
+    </div>
+
+</body>
+</html>

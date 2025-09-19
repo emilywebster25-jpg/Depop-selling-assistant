@@ -1,0 +1,27 @@
+# Exclude personal photos and data
+photos/staging/
+photos/by_category/
+photos/ready_for_depop/
+
+# Keep the folder structure but exclude personal inventory data
+data/inventory_tracker.csv
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+
+# Log files
+*.log
+
+# Temporary files
+*.tmp
+*.temp
