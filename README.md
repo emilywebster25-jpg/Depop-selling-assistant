@@ -1,4 +1,4 @@
-# Depop Selling Project
+# Depop Selling Assistant
 
 A comprehensive system to streamline your Depop selling process, from inventory management to listing optimization.
 
