@@ -1,6 +1,50 @@
-# Depop Selling Assistant
+# 🛍️ Depop Selling Assistant
 
-A comprehensive system to streamline your Depop selling process, from inventory management to listing optimization.
+**A comprehensive web-based system to streamline your Depop selling process** - Built with Claude Code to demonstrate AI-human collaboration in creating practical business tools.
+
+## 📋 What It Is
+
+This is a complete **visual photo organizer and inventory management system** specifically designed for Depop sellers. It transforms the tedious process of organizing photos and creating listings into a streamlined, efficient workflow.
+
+**Key Components:**
+- 🌐 **Web-based photo organizer** with drag-and-drop interface
+- 📊 **Inventory tracking system** with CSV integration  
+- 🤖 **AI-powered photo assessment** workflow
+- 📸 **Smart photo organization** by category and item
+- 🏷️ **Listing optimization tools** with templates and hashtags
+- 🔗 **Direct Depop integration** for seamless uploading
+
+## ⚙️ How It Works
+
+### Visual Photo Organization
+1. **Drop photos** into the staging folder
+2. **Launch the web interface** (`./launch_organizer.sh`)
+3. **Group photos visually** using the intuitive interface
+4. **Fill out authentic Depop form fields** (categories, brands, descriptions)
+5. **Photos automatically organized** into both category and item-specific folders
+6. **Click "Open Folder"** to drag photos directly into Depop
+
+### Smart Automation
+- **Real-time photo preview** with modal lightbox navigation
+- **Automatic file naming** and folder organization
+- **CSV inventory population** with all item details
+- **Hashtag character counting** within description fields
+- **Form validation** using authentic Depop field options
+
+## 💡 Why I Made It
+
+As someone learning to harness AI for practical business solutions, I wanted to demonstrate how **Claude Code can collaborate with humans** to build real-world applications that solve genuine problems.
+
+**The Challenge:** Depop selling involves repetitive photo organization, manual inventory tracking, and time-consuming listing creation.
+
+**My Solution:** A visual web application that automates the tedious parts while maintaining complete control over the creative aspects.
+
+**What This Showcases:**
+- 🤝 **AI-Human Collaboration** - Using Claude Code to rapidly prototype and iterate
+- 🎯 **Problem-Solving Approach** - Identifying pain points and building targeted solutions  
+- 🛠️ **Full-Stack Development** - Frontend (HTML/CSS/JS) + Backend (Python) + Data Management (CSV)
+- 📱 **User Experience Focus** - Intuitive interface with authentic form fields
+- 🔄 **Iterative Development** - Started simple, added features based on real needs
 
 ## Quick Start Guide
 
@@ -83,3 +127,29 @@ This project is designed to be collaborative. Use Claude Code to:
 - 90% of users are under 26 (Gen Z focused)
 - Items 40% more likely to sell with video
 - Refreshing listings bumps them to top of search
+
+---
+
+## 🤖 Built with Claude Code
+
+This project demonstrates the power of **AI-assisted development** using [Claude Code](https://claude.ai/code). From initial concept to deployment, Claude helped me:
+
+**Development Process:**
+- 🎯 **Problem Analysis** - Breaking down the Depop selling workflow into solvable components
+- 🛠️ **Technical Architecture** - Designing the full-stack solution (web interface + Python backend)
+- 💻 **Code Implementation** - Writing HTML, CSS, JavaScript, and Python with real-time collaboration
+- 🐛 **Debugging & Iteration** - Solving issues like modal navigation, form validation, and file organization
+- 📱 **UX Enhancement** - Adding features like photo preview, drag-and-drop, and authentic form fields
+- 🔗 **GitHub Integration** - Setting up version control and repository management
+
+**Total Development Time:** ~6 hours for a complete business application
+**Files Created:** 17+ comprehensive files including documentation, scripts, and data structures
+**Key Learning:** How AI can accelerate development while maintaining code quality and user experience focus
+
+This project showcases how **non-technical founders can leverage AI** to rapidly prototype and build functional business tools without traditional programming backgrounds.
+
+**Technologies Used:** HTML5, CSS3, JavaScript, Python, HTTP Server, CSV Data Management, Git/GitHub
+
+---
+
+*Want to see more projects built with Claude Code? Check out my other repositories showcasing AI-assisted development!*
