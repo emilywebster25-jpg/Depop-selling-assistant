@@ -11,7 +11,7 @@ This is a complete **visual photo organizer and inventory management system** sp
 - 📊 **Inventory tracking system** with CSV integration  
 - 📸 **Photo organization** by category and item
 - 🏷️ **Listing templates and hashtags** for optimization
-- 🔗 **Direct Depop integration** for seamless uploading
+- 📁 **Organized folders** for easy photo uploading to Depop
 
 ## ⚙️ How It Works
 
