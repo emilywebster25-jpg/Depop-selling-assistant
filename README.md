@@ -1,6 +1,6 @@
 # 🛍️ Depop Selling Assistant
 
-**A comprehensive web-based system to streamline your Depop selling process** - Built with Claude Code to demonstrate AI-human collaboration in creating practical business tools.
+**A web-based system to streamline your Depop selling process.**
 
 ## 📋 What It Is
 
